@@ -26,14 +26,31 @@ void displayGeneration(char *generation) {
     }
 }
 
+void swapPointers(char **ptr1, char **ptr2) {
+    char *temp = *ptr1;
+    *ptr1 = *ptr2;
+    *ptr2 = temp;
+}
+
 int main() {
     char *currentGeneration = (char *)malloc(ROWS * COLS * sizeof(char));
     char *nextGeneration = (char *)malloc(ROWS * COLS * sizeof(char));
 
     resetGeneration(currentGeneration);
 
+    printf("current: %p\nnext: %p\n\n", currentGeneration, nextGeneration);
+
+    char *temp = currentGeneration;
+    currentGeneration = nextGeneration;
+    nextGeneration = temp;
+
+    printf("current: %p\nnext: %p\n\n", currentGeneration, nextGeneration);
+
+    swapPointers(&currentGeneration, &nextGeneration);
+
+    printf("current: %p\nnext: %p\n", currentGeneration, nextGeneration);
     
-    displayGeneration(currentGeneration);
+    // displayGeneration(currentGeneration);
 
     free(currentGeneration);
     free(nextGeneration);
