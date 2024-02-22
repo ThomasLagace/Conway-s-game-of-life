@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ROWS 8
-#define COLS 8
+#define ROWS 10
+#define COLS 10
 
 enum tiles {
     ALIVE_CELL = 219,
@@ -25,7 +25,7 @@ void resetGeneration(unsigned char *generation) {
 void displayGeneration(unsigned char *generation) {
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            printf(" (%d, %d): %c", j, i, generation[i * COLS + j]);
+            printf("%c", generation[i * COLS + j]);
         }
         puts("");
     }
@@ -41,12 +41,13 @@ unsigned char getAdjacentLiveCells(unsigned char *generation, int x, int y) {
     unsigned char liveCells = 0;
     for (char i = -1; i < 2; i++) {
         for (char j = -1; j < 2; j++) {
-            if ((x == 0 && i < 0 || x == COLS && i > 0)
-                || (y == 0 && j < 0 || y == ROWS && j > 0)) {
+            if ((x == 0 && j < 0 || x == COLS - 1 && j > 0)
+                || (y == 0 && i < 0 || y == ROWS - 1 && i > 0)
+                || (i == 0 && j == 0)
+                || (generation[(i + y) * COLS + (j + x)] != ALIVE_CELL)) {
                 continue;
-            } else if (generation[(y + i) * COLS + (x + j)] == ALIVE_CELL) {
-                liveCells++;
             }
+            liveCells++;
         }
     }
     
@@ -57,15 +58,19 @@ void calculateNextGeneration(unsigned char *currentGeneration, unsigned char *ne
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
             unsigned char liveCells = getAdjacentLiveCells(currentGeneration, j, i);
-            printf("(%d, %d): %d\n", j, i, liveCells);
-            if (liveCells < 2
-                || liveCells > 3) {
-                nextGeneration[i * COLS + j] = DEAD_CELL;
-            } else if (currentGeneration[i * COLS + j] == DEAD_CELL && liveCells == 3) {
-                nextGeneration[i * COLS + j] = ALIVE_CELL;
-            } else if (currentGeneration[i * COLS + j] == ALIVE_CELL && liveCells == 2
-                       || currentGeneration[i * COLS + j] == ALIVE_CELL && liveCells == 3) {
-                nextGeneration[i * COLS + j] = ALIVE_CELL;
+            // TODO: get this right
+            if (currentGeneration[i * COLS + j] == ALIVE_CELL) {
+                if (liveCells < 2) {
+                    nextGeneration[i * COLS + j] = DEAD_CELL;
+                } else if (liveCells == 2 || liveCells == 3) {
+                    nextGeneration[i * COLS + j] = ALIVE_CELL;
+                } else if (liveCells > 3) {
+                    nextGeneration[i * COLS + j] = DEAD_CELL;
+                }
+            } else {
+                if (liveCells == 3) {
+                    nextGeneration[i * COLS + j] = ALIVE_CELL;
+                }
             }
         }
     }
