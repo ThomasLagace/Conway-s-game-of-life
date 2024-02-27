@@ -34,12 +34,21 @@ void resetGeneration(unsigned char *generation) {
 
 void displayGeneration(unsigned char *generation) {
     system("cls");
+
+    unsigned char *stringBuffer = (unsigned char *)malloc(sizeof(unsigned char) * COLS * ROWS + ROWS + 1);
+
     for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            printf("%c", generation[i * COLS + j]);
+        memcpy(stringBuffer + i * COLS, generation + i * COLS, COLS);
+        if (i == ROWS - 1) {
+            stringBuffer[i * COLS + 1] = '\0';
+        } else {
+            stringBuffer[i * COLS + 1] = '\n';
         }
-        puts("");
     }
+
+    printf("%s", stringBuffer);
+
+    free(stringBuffer);
 }
 
 void swapPointers(void **ptr1, void **ptr2) {
