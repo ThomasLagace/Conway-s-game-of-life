@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
 
 #define ROWS 50
 #define COLS 50
@@ -8,6 +9,13 @@ enum tiles {
     ALIVE_CELL = 219,
     DEAD_CELL = 176
 };
+
+// From https://stackoverflow.com/questions/2732292/setting-the-cursor-position-in-a-win32-console-application
+void gotoxy(int x, int y) { 
+    COORD pos = {x, y};
+    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(output, pos);
+}
 
 unsigned char getAdjacentLiveCells(unsigned char *generation, int x, int y) {
     unsigned char liveCells = 0;
@@ -33,18 +41,16 @@ void resetGeneration(unsigned char *generation) {
 }
 
 void displayGeneration(unsigned char *generation) {
-    system("cls");
-
-    unsigned char *stringBuffer = (unsigned char *)malloc(sizeof(unsigned char) * COLS * ROWS + ROWS + 1);
+    unsigned char *stringBuffer = (unsigned char *)malloc(COLS * ROWS + ROWS + 1);
 
     for (int i = 0; i < ROWS; i++) {
-        memcpy(stringBuffer + i * COLS, generation + i * COLS, COLS);
-        if (i == ROWS - 1) {
-            stringBuffer[i * COLS + 1] = '\0';
-        } else {
-            stringBuffer[i * COLS + 1] = '\n';
-        }
+        memcpy(stringBuffer + i + i * COLS, generation + i * COLS, COLS);
+        stringBuffer[i + COLS + i * COLS] = '\n';
     }
+
+    stringBuffer[COLS * ROWS + ROWS] = '\0';
+
+    gotoxy(0, 0);
 
     printf("%s", stringBuffer);
 
@@ -78,21 +84,35 @@ void calculateNextGeneration(unsigned char *currentGeneration, unsigned char *ne
     }
 }
 
+void randomizeGeneration(unsigned char *generation, unsigned char percentage) {
+    for (int i = 0; i < COLS * ROWS; i++) {
+        srand(i * time(NULL));
+        int randomNumber = rand() % 256;
+        if (randomNumber < percentage) {
+            generation[i] = ALIVE_CELL;
+        }
+    }
+}
+
 int main() {
+    system("cls");
+
     unsigned char *currentGeneration = (unsigned char *)malloc(ROWS * COLS * sizeof(char));
     unsigned char *nextGeneration = (unsigned char *)malloc(ROWS * COLS * sizeof(char));
 
     resetGeneration(currentGeneration);
     resetGeneration(nextGeneration);
 
-    currentGeneration[2 * COLS + 3] = ALIVE_CELL;
-    currentGeneration[3 * COLS + 4] = ALIVE_CELL;
+    // currentGeneration[2 * COLS + 3] = ALIVE_CELL;
+    // currentGeneration[3 * COLS + 4] = ALIVE_CELL;
 
-    currentGeneration[4 * COLS + 2] = ALIVE_CELL;
-    currentGeneration[4 * COLS + 3] = ALIVE_CELL;
-    currentGeneration[4 * COLS + 4] = ALIVE_CELL;
+    // currentGeneration[4 * COLS + 2] = ALIVE_CELL;
+    // currentGeneration[4 * COLS + 3] = ALIVE_CELL;
+    // currentGeneration[4 * COLS + 4] = ALIVE_CELL;
 
-    for (int i = 0; i < 50; i++)
+    randomizeGeneration(currentGeneration, 128);
+
+    for (int i = 0; i < 1000; i++)
     {
         displayGeneration(currentGeneration);
 
