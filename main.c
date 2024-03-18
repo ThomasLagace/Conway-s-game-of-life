@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 
 #define ROWS 50
 #define COLS 50
@@ -12,9 +15,11 @@ enum tiles {
 
 // From https://stackoverflow.com/questions/2732292/setting-the-cursor-position-in-a-win32-console-application
 void gotoxy(int x, int y) { 
-    COORD pos = {x, y};
-    HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleCursorPosition(output, pos);
+    #ifdef _WIN32
+        COORD pos = {x, y};
+        HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleCursorPosition(output, pos);
+    #endif
 }
 
 unsigned char getAdjacentLiveCells(unsigned char *generation, int x, int y) {
